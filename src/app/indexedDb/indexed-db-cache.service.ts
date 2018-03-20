@@ -21,7 +21,8 @@ export class IndexedDbCache implements Cache {
       };
       req.onupgradeneeded = (e: IDBVersionChangeEvent) => {
           const db = (<any>e.target).result;
-            db.createObjectStore(this.tableName, { keyPath: 'id' });
+            const obj = db.createObjectStore(this.tableName, { keyPath: 'id' });
+            obj.createIndex('exp', 'expiryDate');
             const transaction = (<any>e.target).transaction;
             transaction.oncomplete = (event) => {
                 observer.next(db);
@@ -35,10 +36,19 @@ export class IndexedDbCache implements Cache {
   }
 
   add<T>(key: string, data: T) {
+    const currentDate = new Date();
+    currentDate.setSeconds(currentDate.getSeconds() + environment.cacheDuration);
+
+    const entity: IEntity<T> = {
+      id: key,
+      data,
+      expiryDate: currentDate
+    };
+
     this.getDb().subscribe(db => {
-      db.transaction(this.tableName)
+      db.transaction(this.tableName, 'readwrite')
       .objectStore(this.tableName)
-      .add(data, key);
+      .add(entity);
     });
   }
 
@@ -58,7 +68,7 @@ export class IndexedDbCache implements Cache {
         .get(key);
 
         req.onsuccess = e => {
-          observer.next(req.result);
+          observer.next(req.result ? req.result.data : req.result );
           observer.complete();
         };
 

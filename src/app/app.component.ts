@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { OnInit } from '@angular/core';
 import { environment } from '../environments/environment';
-import { HttpCacheServiceService } from './httpCacheService/http-cache-service.service';
+import { HttpCache } from './httpCacheService/http-cache.service';
 
 
 
@@ -14,7 +14,7 @@ export class AppComponent implements OnInit {
 
   title = 'app';
 
-  constructor(private httpCacheServiceService: HttpCacheServiceService) {
+  constructor(private httpCacheServiceService: HttpCache) {
   }
 
   ngOnInit(): void {

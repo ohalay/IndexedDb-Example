@@ -1,5 +1,5 @@
 export interface IEntity<T> {
-    id?: number;
+    id?: string;
     expiryDate: Date;
     data: T;
 }

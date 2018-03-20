@@ -4,6 +4,8 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs/Observable';
 
+import 'rxjs/add/observable/empty';
+
 @Injectable()
 export class LocalStorageCache implements Cache {
 
@@ -29,12 +31,12 @@ export class LocalStorageCache implements Cache {
 
         const value = localStorage.getItem(key);
         if (!value) {
-            return null;
+           return Observable.of<T>(null);
         }
 
         const entity: IEntity<T>  = JSON.parse(value);
         if (!entity || new Date(entity.expiryDate) <= new Date()) {
-            return null;
+           return Observable.of<T>(null);
         }
 
         return Observable.of(entity.data);
