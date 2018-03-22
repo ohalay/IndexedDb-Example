@@ -54,21 +54,31 @@ export class IndexedDbCache implements Cache {
 
   remove(key: string) {
     this.getDb().subscribe(db => {
-      db.transaction(this.tableName)
-      .objectStore(this.tableName)
-      .delete(key);
+      const transaction = db.transaction(this.tableName, 'readwrite');
+      this.removeInTransaction(key, transaction);
     });
+  }
+  private removeInTransaction(key: string, transaction: IDBTransaction) {
+      transaction.objectStore(this.tableName)
+        .delete(key);
   }
 
   get<T>(key: string): Observable<T> {
     return Observable.create(observer => {
       this.getDb().subscribe(db => {
-        const req = db.transaction(this.tableName)
-        .objectStore(this.tableName)
-        .get(key);
+        const transaction = db.transaction(this.tableName, 'readwrite');
+        const req = transaction.objectStore(this.tableName)
+          .get(key);
 
         req.onsuccess = e => {
-          observer.next(req.result ? req.result.data : req.result );
+          let isExpired = false;
+          if (req.result && req.result.expiryDate < new Date()) {
+            this.removeInTransaction(key, transaction);
+            isExpired = true;
+          }
+          observer.next(req.result && !isExpired
+            ? req.result.data
+            : null );
           observer.complete();
         };
 

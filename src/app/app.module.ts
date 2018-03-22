@@ -21,7 +21,7 @@ import { IndexedDbCache } from './indexedDb/indexed-db-cache.service';
     HttpClientModule
   ],
   providers: [
-    { provide: Cache, useClass: LocalStorageCache },
+    { provide: Cache, useClass: IndexedDbCache },
     HttpCache,
   ],
   bootstrap: [AppComponent]
