@@ -1,8 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
-
-
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 import { AppComponent } from './app.component';
 import { LocalStorageCache } from './localStorage/local-storage-cache';
@@ -18,7 +18,8 @@ import { IndexedDbCache } from './indexedDb/indexed-db-cache.service';
   ],
   imports: [
     BrowserModule,
-    HttpClientModule
+    HttpClientModule,
+    ServiceWorkerModule.register('/ngsw-worker.js' /*, {enabled: environment.production}*/)
   ],
   providers: [
     { provide: Cache, useClass: IndexedDbCache },
